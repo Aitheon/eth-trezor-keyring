@@ -24,7 +24,7 @@ class TrezorKeyring extends EventEmitter {
     this.unlockedAccount = 0
     this.paths = {}
     this.deserialize(opts)
-    TrezorConnect.manifest(TREZOR_CONNECT_MANIFEST)
+    TrezorConnect.manifest(opts.manifest || TREZOR_CONNECT_MANIFEST)
   }
 
   serialize () {
@@ -216,10 +216,11 @@ class TrezorKeyring extends EventEmitter {
       this.unlock()
           .then(status => {
             setTimeout(_ => {
-              const humanReadableMsg = this._toAscii(message)
+              // const humanReadableMsg = this._toAscii(message)
+              const path = this._pathFromAddress(withAccount);
               TrezorConnect.ethereumSignMessage({
-                path: this._pathFromAddress(withAccount),
-                message: humanReadableMsg,
+                path: path,
+                message: message,
               }).then(response => {
                 if (response.success) {
                   if (response.payload.address !== ethUtil.toChecksumAddress(withAccount)) {
